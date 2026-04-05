@@ -1,0 +1,89 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Build output
+bin/
+dist/
+out/
+
+# Test binary, built with `go test -c`
+*.test
+
+# Test coverage output
+*.out
+coverage.html
+coverage.txt
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Dependency directories
+vendor/
+
+# Air live reload
+tmp/
+.air.toml
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Docker
+docker-compose.override.yml
+
+# Kubernetes secrets / local overrides
+*.local.yaml
+*.local.yml
+
+# Certificates and keys
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Profiling files
+*.prof
+*.pprof
+cpu.out
+mem.out
+
+# Swagger / generated docs (if auto-generated)
+docs/swagger.json
+docs/swagger.yaml
+
+# Migration lock files (keep migrations, ignore locks)
+*.lock
+
+# Terraform (if used for infra)
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# Temporary files
+*.tmp
+*.bak
+*.orig
