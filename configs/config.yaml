@@ -1,0 +1,85 @@
+# Development defaults. Every value can be overridden by an environment variable
+# (dot-notation maps to snake case: "redis.addr" -> REDIS_ADDR), which is how the
+# containers are configured.
+#
+# Note: Viper does not expand ${VAR} inside this file — use the environment
+# overrides instead.
+environment: development
+
+log:
+  level: info
+
+server:
+  host: 0.0.0.0
+  port: 8080
+  # Metrics and probes only. Never publish this port through the reverse proxy.
+  admin_host: 0.0.0.0
+  admin_port: 9090
+  read_timeout: 10s
+  write_timeout: 20s
+  idle_timeout: 120s
+  shutdown_timeout: 30s
+  max_body_bytes: 1048576
+  # Only these peers may set X-Forwarded-For; the rate limiter trusts the
+  # resolved client address.
+  trusted_proxies:
+    - 127.0.0.1/32
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+
+oauth:
+  # The browser-facing URL of this service (through Nginx). Must be https in
+  # production and must match the "iss" of every issued token.
+  issuer_url: http://localhost:8088
+  audience: erplite-api
+  # PEM file with an RSA private key. In development a key is generated when the
+  # file is missing; production refuses to start without one.
+  signing_key_path: /var/lib/iam/keys/signing.pem
+  allow_dev_key_generation: true
+  access_ttl: 10m
+  service_access_ttl: 5m
+  refresh_ttl: 720h           # 30 days of inactivity
+  refresh_absolute_ttl: 2160h # 90 days from the original login
+  code_ttl: 60s
+  interaction_ttl: 15m
+  refresh_replay_grace: 10s
+  refresh_lock_ttl: 5s
+  refresh_lock_wait: 1s
+  clock_skew: 60s
+  user_status_cache_ttl: 60s
+  require_consent_default: false
+  max_sessions_per_user: 50
+  client_credentials_enabled: true
+  active_session_sampler: 1m
+
+database:
+  dsn: postgres://iam_user:iam_pass@localhost:5432/iam?sslmode=disable
+  max_conns: 25
+  min_conns: 2
+  max_conn_lifetime: 30m
+  max_conn_idle_time: 5m
+  connect_timeout: 10s
+  health_timeout: 2s
+
+redis:
+  addr: localhost:6379
+  password: ""
+  db: 0
+  pool_size: 50
+  min_idle_conns: 5
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+  # Reject requests when Redis is unreachable instead of trusting a signature
+  # alone: revocation must stay authoritative.
+  fail_closed: true
+
+ratelimit:
+  login_per_account: 5
+  login_per_ip: 20
+  authorize_per_ip: 120
+  token_per_client: 60
+  window: 15m
+  failed_logins_to_lock: 5
+  account_lock_duration: 15m

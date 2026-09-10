@@ -1,0 +1,9 @@
+.git
+.gocache
+.gotmp
+bin
+docs
+deployments
+scripts
+*.md
+coverage.out
