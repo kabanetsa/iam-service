@@ -1,0 +1,108 @@
+name: iam-service
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: iam_user
+      POSTGRES_PASSWORD: iam_pass
+      POSTGRES_DB: iam
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U iam_user -d iam"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    # noeviction is required: an evicted session key would silently log a user
+    # out, and appendonly keeps sessions across restarts.
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory-policy", "noeviction"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "6379:6379"
+
+  iam-migrate:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+      target: runtime
+      args:
+        VERSION: dev
+    command: ["migrate", "up"]
+    environment: &iam_env
+      CONFIG_PATH: /app/configs/config.yaml
+      ENVIRONMENT: development
+      DATABASE_URL: postgres://iam_user:iam_pass@postgres:5432/iam?sslmode=disable
+      REDIS_ADDR: redis:6379
+      OAUTH_ISSUER_URL: http://localhost:8088
+      OAUTH_AUDIENCE: erplite-api
+      OAUTH_SIGNING_KEY_PATH: /var/lib/iam/keys/signing.pem
+      TRUSTED_PROXIES: 127.0.0.1/32,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+      LOG_LEVEL: info
+    volumes:
+      - iam_keys:/var/lib/iam/keys
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  iam:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+      target: runtime
+      args:
+        VERSION: dev
+    command: ["serve"]
+    environment: *iam_env
+    volumes:
+      - iam_keys:/var/lib/iam/keys
+    depends_on:
+      iam-migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    expose:
+      - "8080"
+      - "9090"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+      target: backend
+    command: ["--addr", ":8080"]
+    expose:
+      - "8080"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8088:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Статика демо-клиента, чтобы весь цикл входа можно было пройти в браузере.
+      - ./demo:/usr/share/nginx/demo:ro
+    depends_on:
+      - iam
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  iam_keys:

@@ -1,0 +1,14 @@
+{{ define "content" }}
+<h1>Разрешить доступ?</h1>
+{{ if .Error }}<div class="error" role="alert">{{ .Error }}</div>{{ end }}
+<p>Приложение «{{ .ClientName }}» запрашивает доступ от имени <strong>{{ .UserEmail }}</strong>:</p>
+<ul class="scopes">
+  {{ range .Scopes }}<li>{{ . }}</li>{{ end }}
+</ul>
+<form method="post" action="/consent">
+  <input type="hidden" name="interaction" value="{{ .InteractionID }}">
+  <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+  <button class="primary" type="submit" name="decision" value="allow">Разрешить</button>
+  <button class="secondary" type="submit" name="decision" value="deny">Отклонить</button>
+</form>
+{{ end }}

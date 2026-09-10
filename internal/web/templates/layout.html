@@ -1,0 +1,38 @@
+{{ define "layout" }}<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>{{ .Title }}</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+         background: #f4f6f8; color: #1c2430; display: flex; min-height: 100vh; align-items: center; justify-content: center; }
+  .card { background: #fff; width: 100%; max-width: 26rem; margin: 2rem 1rem; padding: 2rem;
+          border-radius: 12px; box-shadow: 0 8px 30px rgba(16,24,40,.10); }
+  h1 { font-size: 1.25rem; margin: 0 0 1rem; }
+  p { line-height: 1.5; }
+  label { display: block; font-size: .875rem; font-weight: 600; margin-bottom: .375rem; }
+  input[type=email], input[type=password] { width: 100%; padding: .625rem .75rem; font-size: 1rem;
+          border: 1px solid #c7ced6; border-radius: 8px; margin-bottom: 1rem; }
+  button, .button { display: inline-block; width: 100%; padding: .7rem 1rem; font-size: 1rem; font-weight: 600;
+          border-radius: 8px; border: 1px solid transparent; cursor: pointer; text-align: center; text-decoration: none; }
+  .primary { background: #1e5fd8; color: #fff; }
+  .secondary { background: #eef1f5; color: #1c2430; border-color: #c7ced6; margin-top: .5rem; }
+  .error { background: #fdeaea; border: 1px solid #f3b5b5; color: #8a1c1c; padding: .625rem .75rem;
+           border-radius: 8px; margin-bottom: 1rem; font-size: .875rem; }
+  .muted { color: #5b6675; font-size: .875rem; }
+  ul.scopes { margin: .5rem 0 1.25rem; padding-left: 1.1rem; }
+  ul.scopes li { margin-bottom: .25rem; }
+  .brand { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: #5b6675; margin-bottom: .5rem; }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">ERP Lite · IAM</div>
+    {{ template "content" . }}
+  </main>
+</body>
+</html>{{ end }}

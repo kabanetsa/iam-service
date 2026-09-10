@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Демо-клиент ERP Lite IAM</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="brand">ERP Lite · IAM</div>
+  <h1>Демо-клиент OAuth 2.1</h1>
+  <p class="muted">
+    Одна страница, которая проходит весь цикл: PKCE → <code>/oauth/authorize</code> →
+    вход → согласие → обмен кода → работа с токенами через Nginx.
+  </p>
+  <p id="secure-context" class="warning hidden">
+    Этот адрес не считается «secure context»: <code>crypto.subtle</code> недоступен,
+    PKCE не сможет посчитать S256. Откройте страницу через <code>http://localhost:8088/demo/</code>.
+  </p>
+</header>
+
+<main>
+  <section class="card">
+    <h2>1. Параметры клиента</h2>
+    <dl class="grid" id="config"></dl>
+    <p class="muted">
+      Демо-клиент — публичный (PKCE, без секрета) и зарегистрирован с
+      <code>require_consent = true</code>, поэтому экран согласия виден всегда.
+    </p>
+    <div class="actions">
+      <button id="btn-login" class="primary" type="button">Войти через IAM</button>
+      <button id="btn-reset" class="secondary" type="button">Сбросить состояние</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Токены</h2>
+    <div id="tokens" class="empty">Токенов пока нет — нажмите «Войти через IAM».</div>
+    <div class="actions">
+      <button id="btn-refresh" type="button" disabled>Обновить (refresh rotation)</button>
+      <button id="btn-replay" type="button" disabled title="Повторная отправка уже использованного refresh-токена">Повторить старый refresh</button>
+      <button id="btn-userinfo" type="button" disabled>GET /oauth/userinfo</button>
+      <button id="btn-api" type="button" disabled>GET /api/ping через Nginx</button>
+      <button id="btn-logout" type="button" disabled>Logout</button>
+    </div>
+    <p class="muted">
+      «Повторить старый refresh» в первые 10 секунд вернёт ту же пару (идемпотентный
+      ретрай), а позже приведёт к <code>invalid_grant</code> и отзыву всей цепочки —
+      после этого и ранее выданный access-токен перестанет проходить <code>/verify</code>.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>3. Ответ API</h2>
+    <pre id="api-output" class="output empty">Здесь появится ответ защищённого endpoint-а вместе с заголовками, которые добавил Nginx.</pre>
+  </section>
+
+  <section class="card">
+    <h2>4. Журнал запросов</h2>
+    <div class="actions">
+      <button id="btn-clear-log" class="secondary" type="button">Очистить журнал</button>
+    </div>
+    <div id="log" class="log" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer>
+  <p class="muted">
+    Инструмент для локальной отладки. Не публикуйте его в production: страница
+    показывает токены в открытом виде.
+  </p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

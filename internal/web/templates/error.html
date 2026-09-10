@@ -1,0 +1,6 @@
+{{ define "content" }}
+<h1>{{ .Title }}</h1>
+<p>{{ .Message }}</p>
+{{ if .ErrorCode }}<p class="muted">Код ошибки: <code>{{ .ErrorCode }}</code></p>{{ end }}
+{{ if .BackURL }}<p><a class="button secondary" href="{{ .BackURL }}">Вернуться в приложение</a></p>{{ end }}
+{{ end }}

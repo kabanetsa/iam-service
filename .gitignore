@@ -9,6 +9,9 @@
 bin/
 dist/
 out/
+# Local build cache (keeps sandboxed builds inside the workspace)
+.gocache/
+.gotmp/
 
 # Test binary, built with `go test -c`
 *.test
@@ -87,3 +90,4 @@ docs/swagger.yaml
 *.tmp
 *.bak
 *.orig
+.docker/
